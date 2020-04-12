@@ -2,7 +2,7 @@
   "profiles": {
     "Sandbox": {
       "commandName": "Project",
-      "commandLineArgs": "testy --version=foo"
+      "commandLineArgs": "first  --version=foo"
     }
   }
 }

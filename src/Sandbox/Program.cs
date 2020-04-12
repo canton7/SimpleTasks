@@ -8,8 +8,10 @@ namespace Sandbox
         static void Main(string[] args)
         {
             var set = new SimpleTaskSet();
-            set.Create("testy", "does a test thing").Run((int version) => Console.WriteLine("Running " + version));
-            set.Create("bar", "does a test thing").Run(() => Console.WriteLine("Running"));
+            var first = set.Create("first", "does a test thing").Run(() => Console.WriteLine("Running"));
+            var second = set.Create("second", "does a test thing").DependsOn(first).Run((int version) => Console.WriteLine("Running " + version));
+            var third = set.Create("third").DependsOn(second).Run(() => Console.WriteLine("third"));
+            first.DependsOn(third);
             set.Invoke(args);
         }
     }

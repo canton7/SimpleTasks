@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Mono.Options;
 
 namespace SimpleTasks
@@ -66,8 +68,43 @@ namespace SimpleTasks
                 }
             }
 
-            // TODO: Dependency resolution, ordering
+            this.AddDependencies(taskInvocations.Values, tasksToRun);
+
             this.RunTasks(extra, tasksToRun);
+        }
+
+        private List<TaskInvocation> AddDependencies(IEnumerable<TaskInvocation> allTaskInvocations, List<TaskInvocation> tasksToRun)
+        {
+            var invocationLookup = allTaskInvocations.ToDictionary(x => x.Task, x => x);
+
+            var invocationList = new List<TaskInvocation>();
+            var stack = new Stack<(TaskInvocation invocation, ImmutableStack<TaskInvocation> path)>(tasksToRun.Select(x => (x, ImmutableStack<TaskInvocation>.Empty)));
+
+            // This algorithm is quadratic. The number of tasks is so small that it likely doesn't matter.
+
+            while (stack.Count > 0)
+            {
+                var (invocation, path) = stack.Pop();
+                // If it's already in the list, it's in there too early
+                invocationList.Remove(invocation);
+                invocationList.Add(invocation);
+                foreach (var dependency in invocation.Task.Dependencies)
+                {
+                    if (invocationLookup.TryGetValue(dependency, out var dependencyInvocation))
+                    {
+                        var modifiedPath = path.Push(invocation);
+                        if (path.Contains(dependencyInvocation))
+                        {
+                            // TODO: Proper exception
+                            throw new Exception($"Circular reference: {string.Join(" -> ", modifiedPath.Select(x => x.Task.Name))}");
+                        }
+                        stack.Push((dependencyInvocation, modifiedPath));
+                    }
+                }
+            }
+
+            invocationList.Reverse();
+            return invocationList;
         }
 
         private void RunTasks(List<string> args, List<TaskInvocation> taskInvocations)
