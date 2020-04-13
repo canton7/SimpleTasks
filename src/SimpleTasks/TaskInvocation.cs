@@ -24,7 +24,7 @@ namespace SimpleTasks
             for (int i = 0; i < task.Invocation.Args.Count; i++)
             {
                 this.argValues[i] = task.Invocation.Args[i].DefaultValue;
-                this.argSupplied[i] = task.Invocation.Args[i].HasDefaultValue;
+                this.argSupplied[i] = task.Invocation.Args[i].IsOptional;
             }
 
             var command = new Command(task.Name, task.Description)

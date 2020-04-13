@@ -31,19 +31,35 @@ namespace SimpleTasks
             }
 
             bool showHelp = false;
+            bool listTasks = false;
 
-            var rootOptions = new OptionSet();
-            rootOptions.Add("h|help", "Show help", _ => showHelp = true);
+            var rootOptions = new OptionSet
+            {
+                { "Common options:" },
+                { "h|help", "Show help", x => showHelp = x != null },
+                { "L|list-tasks", "List tasks", x => listTasks = x != null },
+            };
 
             var extra = rootOptions.Parse(args);
 
-            if (showHelp)
+            if (showHelp || listTasks)
             {
+                if (showHelp)
+                {
+                    rootOptions.WriteOptionDescriptions(Console.Out);
+                    Console.WriteLine();
+                }
+
+                Console.WriteLine("Commands:");
+
                 foreach (var command in taskInvocations.Values.OrderBy(x => x.Task.Name).Select(x => x.Command))
                 {
-                    Console.WriteLine($"  {command.Name,-30} {command.Help}");
-                    command.Options.WriteOptionDescriptions(Console.Out);
-                    Console.WriteLine();
+                    Console.WriteLine($"  {command.Name,-26} {command.Help}");
+                    if (showHelp)
+                    {
+                        command.Options.WriteOptionDescriptions(Console.Out);
+                        Console.WriteLine();
+                    }
                 }
                 return;
             }
@@ -68,9 +84,9 @@ namespace SimpleTasks
                 }
             }
 
-            this.AddDependencies(taskInvocations.Values, tasksToRun);
+            var tasksToRunWithDependencies = this.AddDependencies(taskInvocations.Values, tasksToRun);
 
-            this.RunTasks(extra, tasksToRun);
+            this.RunTasks(extra, tasksToRunWithDependencies);
         }
 
         private List<TaskInvocation> AddDependencies(IEnumerable<TaskInvocation> allTaskInvocations, List<TaskInvocation> tasksToRun)
@@ -85,7 +101,8 @@ namespace SimpleTasks
             while (stack.Count > 0)
             {
                 var (invocation, path) = stack.Pop();
-                // If it's already in the list, it's in there too early
+                // If it's already in the list, it's in there too early. If it's got dependencies, we'll find and remove
+                // those as we process this item's dependencies again.
                 invocationList.Remove(invocation);
                 invocationList.Add(invocation);
                 foreach (var dependency in invocation.Task.Dependencies)
