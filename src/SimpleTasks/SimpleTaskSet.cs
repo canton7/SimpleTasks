@@ -89,7 +89,7 @@ namespace SimpleTasks
             this.RunTasks(extra, tasksToRunWithDependencies);
         }
 
-        private List<TaskInvocation> AddDependencies(IEnumerable<TaskInvocation> allTaskInvocations, List<TaskInvocation> tasksToRun)
+        private List<TaskInvocation> AddDependencies(IEnumerable<TaskInvocation> allTaskInvocations, IEnumerable<TaskInvocation> tasksToRun)
         {
             var invocationLookup = allTaskInvocations.ToDictionary(x => x.Task, x => x);
 
