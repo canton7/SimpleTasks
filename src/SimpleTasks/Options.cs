@@ -1,6 +1,9 @@
 ﻿#nullable disable
 #pragma warning disable
 
+// Copied from https://github.com/mono/mono/blob/be24f101bdcacb1cd27ae5fd248f0615ed8a1d8f/mcs/class/Mono.Options/Mono.Options/Options.cs
+// Edited so that types are internal rather than public, but otherwise untouched
+
 //
 // Options.cs
 //
