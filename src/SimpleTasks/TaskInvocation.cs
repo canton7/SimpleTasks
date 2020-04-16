@@ -6,10 +6,18 @@ using Mono.Options;
 
 namespace SimpleTasks
 {
+    public enum TaskInvocationMark
+    {
+        None,
+        Temporary,
+        Permanent,
+    }
+
     internal class TaskInvocation
     {
         public SimpleTask Task { get; }
         public Command Command { get; }
+        public TaskInvocationMark Mark { get; set; }
 
         private readonly object?[] argValues;
         private readonly bool[] argSupplied;

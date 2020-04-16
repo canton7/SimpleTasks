@@ -2,7 +2,7 @@
   "profiles": {
     "Sandbox": {
       "commandName": "Project",
-      "commandLineArgs": "third"
+      "commandLineArgs": "first second"
     }
   }
 }

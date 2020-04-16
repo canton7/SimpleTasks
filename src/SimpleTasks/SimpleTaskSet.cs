@@ -91,37 +91,53 @@ namespace SimpleTasks
 
         private List<TaskInvocation> AddDependencies(IEnumerable<TaskInvocation> allTaskInvocations, IEnumerable<TaskInvocation> tasksToRun)
         {
+            // We choose a depth-first search (https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search) as it doesn't
+            // need to start with a set of all nodes with no incoming edge, and it nicely detects circular references.
+            // If we hit a circular dependency, the chain leading up to the dependency is sitting on the stack, so we can
+            // just unwind it using exceptions -- it's a bit ugly, but we're not going to hit it often.
+
             var invocationLookup = allTaskInvocations.ToDictionary(x => x.Task, x => x);
+            var result = new List<TaskInvocation>();
 
-            var invocationList = new List<TaskInvocation>();
-            var stack = new Stack<(TaskInvocation invocation, ImmutableStack<TaskInvocation> path)>(tasksToRun.Select(x => (x, ImmutableStack<TaskInvocation>.Empty)));
-
-            // This algorithm is quadratic. The number of tasks is so small that it likely doesn't matter.
-
-            while (stack.Count > 0)
+            foreach(var taskToRun in tasksToRun)
             {
-                var (invocation, path) = stack.Pop();
-                // If it's already in the list, it's in there too early. If it's got dependencies, we'll find and remove
-                // those as we process this item's dependencies again.
-                invocationList.Remove(invocation);
-                invocationList.Add(invocation);
-                foreach (var dependency in invocation.Task.Dependencies)
-                {
-                    if (invocationLookup.TryGetValue(dependency, out var dependencyInvocation))
-                    {
-                        var modifiedPath = path.Push(invocation);
-                        if (path.Contains(dependencyInvocation))
-                        {
-                            // TODO: Proper exception
-                            throw new Exception($"Circular reference: {string.Join(" -> ", modifiedPath.Select(x => x.Task.Name))}");
-                        }
-                        stack.Push((dependencyInvocation, modifiedPath));
-                    }
-                }
+                Visit(taskToRun);
             }
 
-            invocationList.Reverse();
-            return invocationList;
+            void Visit(TaskInvocation node)
+            {
+                if (node.Mark == TaskInvocationMark.Permanent)
+                {
+                    return;
+                }
+                if (node.Mark == TaskInvocationMark.Temporary)
+                {
+                    throw new CircularDependencyException(new List<SimpleTask>() { node.Task });
+                }
+
+                node.Mark = TaskInvocationMark.Temporary;
+
+                foreach (var prerequisite in node.Task.Prerequisites)
+                {
+                    if (invocationLookup.TryGetValue(prerequisite, out var prerequisiteInvocation))
+                    {
+                        try
+                        {
+                            Visit(prerequisiteInvocation);
+                        }
+                        catch (CircularDependencyException e)
+                        {
+                            throw new CircularDependencyException(e.Tasks.Append(node.Task).ToList());
+                        }
+                    }
+                }
+
+                node.Mark = TaskInvocationMark.Permanent;
+                result.Add(node);
+            }
+
+            result.Reverse();
+            return result;
         }
 
         private void RunTasks(List<string> args, List<TaskInvocation> taskInvocations)
