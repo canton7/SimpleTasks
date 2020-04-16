@@ -19,6 +19,8 @@ namespace SimpleTasks
         public Command Command { get; }
         public TaskInvocationMark Mark { get; set; }
 
+        public List<TaskInvocation> Prerequisites { get; } = new List<TaskInvocation>();
+
         private readonly object?[] argValues;
         private readonly bool[] argSupplied;
 

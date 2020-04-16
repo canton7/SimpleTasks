@@ -11,7 +11,8 @@ namespace SimpleTasks
 
         public string Name { get; }
         public string? Description { get; }
-        internal List<SimpleTask> Prerequisites { get; } = new List<SimpleTask>();
+        private readonly List<string> dependencies = new List<string>();
+        public IReadOnlyList<string> Dependencies => this.dependencies;
         internal RunMethodInvoker? Invocation { get; private set; }
 
         internal SimpleTask(string name, string? description)
@@ -20,16 +21,23 @@ namespace SimpleTasks
             this.Description = description;
         }
 
+        public SimpleTask DependsOn(params string[] dependencies)
+        {
+            if (dependencies == null || dependencies.Contains(null!))
+            {
+                throw new ArgumentNullException(nameof(dependencies));
+            }
+            this.dependencies.AddRange(dependencies);
+            return this;
+        }
+
         public SimpleTask DependsOn(params SimpleTask[] dependencies)
         {
             if (dependencies == null || dependencies.Contains(null!))
             {
                 throw new ArgumentNullException(nameof(dependencies));
             }
-            foreach (var dependency in dependencies)
-            {
-                dependency.Prerequisites.Add(this);
-            }
+            this.dependencies.AddRange(dependencies.Select(x => x.Name));
             return this;
         }
 

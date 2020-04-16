@@ -27,7 +27,29 @@ namespace SimpleTasks
                 if (task.Invocation == null)
                     continue;
 
+                if (taskInvocations.ContainsKey(task.Name))
+                {
+                    // TODO: Proper exceptions
+                    throw new Exception($"Two tasks with the name {task.Name} found");
+                }
+
                 taskInvocations.Add(task.Name, new TaskInvocation(task));
+            }
+
+            foreach (var invocation in taskInvocations.Values)
+            {
+                foreach (string dependency in invocation.Task.Dependencies)
+                {
+                    if (taskInvocations.TryGetValue(dependency, out var dependencyInvocation))
+                    {
+                        dependencyInvocation.Prerequisites.Add(invocation);
+                    }
+                    else
+                    {
+                        // TODO: Proper exception
+                        throw new Exception($"Dependency {dependency} of task {invocation.Task.Name} not found");
+                    }
+                }
             }
 
             bool showHelp = false;
@@ -92,19 +114,18 @@ namespace SimpleTasks
                 }
             }
 
-            var tasksToRunWithDependencies = this.AddDependencies(taskInvocations.Values, tasksToRun);
+            var tasksToRunWithDependencies = this.AddDependencies(tasksToRun);
 
             this.RunTasks(extra, tasksToRunWithDependencies);
         }
 
-        private List<TaskInvocation> AddDependencies(IEnumerable<TaskInvocation> allTaskInvocations, IEnumerable<TaskInvocation> tasksToRun)
+        private List<TaskInvocation> AddDependencies(IEnumerable<TaskInvocation> tasksToRun)
         {
             // We choose a depth-first search (https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search) as it doesn't
             // need to start with a set of all nodes with no incoming edge, and it nicely detects circular references.
             // If we hit a circular dependency, the chain leading up to the dependency is sitting on the stack, so we can
             // just unwind it using exceptions -- it's a bit ugly, but we're not going to hit it often.
 
-            var invocationLookup = allTaskInvocations.ToDictionary(x => x.Task, x => x);
             var result = new List<TaskInvocation>();
 
             foreach(var taskToRun in tasksToRun)
@@ -125,18 +146,15 @@ namespace SimpleTasks
 
                 node.Mark = TaskInvocationMark.Temporary;
 
-                foreach (var prerequisite in node.Task.Prerequisites)
+                foreach (var prerequisite in node.Prerequisites)
                 {
-                    if (invocationLookup.TryGetValue(prerequisite, out var prerequisiteInvocation))
+                    try
                     {
-                        try
-                        {
-                            Visit(prerequisiteInvocation);
-                        }
-                        catch (CircularDependencyException e)
-                        {
-                            throw new CircularDependencyException(e.Tasks.Append(node.Task).ToList());
-                        }
+                        Visit(prerequisite);
+                    }
+                    catch (CircularDependencyException e)
+                    {
+                        throw new CircularDependencyException(e.Tasks.Append(node.Task).ToList());
                     }
                 }
 
