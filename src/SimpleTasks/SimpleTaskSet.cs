@@ -84,6 +84,14 @@ namespace SimpleTasks
                 }
             }
 
+            if (tasksToRun.Count == 0)
+            {
+                if (taskInvocations.TryGetValue("default", out var taskInvocation))
+                {
+                    tasksToRun.Add(taskInvocation);
+                }
+            }
+
             var tasksToRunWithDependencies = this.AddDependencies(taskInvocations.Values, tasksToRun);
 
             this.RunTasks(extra, tasksToRunWithDependencies);
