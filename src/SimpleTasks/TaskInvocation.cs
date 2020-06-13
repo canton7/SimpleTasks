@@ -28,13 +28,13 @@ namespace SimpleTasks
         {
             this.Task = task ?? throw new ArgumentNullException(nameof(task));
 
-            this.argValues = new object[task.Invocation!.Args.Count];
-            this.argSupplied = new bool[task.Invocation.Args.Count];
+            this.argValues = new object[task.Invoker!.Args.Count];
+            this.argSupplied = new bool[task.Invoker.Args.Count];
 
-            for (int i = 0; i < task.Invocation.Args.Count; i++)
+            for (int i = 0; i < task.Invoker.Args.Count; i++)
             {
-                this.argValues[i] = task.Invocation.Args[i].DefaultValue;
-                this.argSupplied[i] = task.Invocation.Args[i].IsOptional;
+                this.argValues[i] = task.Invoker.Args[i].DefaultValue;
+                this.argSupplied[i] = task.Invoker.Args[i].IsOptional;
             }
 
             var command = new Command(task.Name, task.Description)
@@ -42,7 +42,7 @@ namespace SimpleTasks
                 Options = new OptionSet()
             };
             command.Options.Add("help|h", "Show help", _ => command.Options.WriteOptionDescriptions(Console.Out), hidden: true);
-            foreach (var taskArg in task.Invocation.Args)
+            foreach (var taskArg in task.Invoker.Args)
             {
                 taskArg.AddOption(command, x =>
                 {
@@ -56,18 +56,18 @@ namespace SimpleTasks
 
         public IEnumerable<string> GetMissingArguments()
         {
-            for (int i = 0; i < this.Task.Invocation!.Args.Count; i++)
+            for (int i = 0; i < this.Task.Invoker!.Args.Count; i++)
             {
                 if (!this.argSupplied[i])
                 {
-                    yield return this.Task.Invocation.Args[i].Name;
+                    yield return this.Task.Invoker.Args[i].Name;
                 }
             }
         }
 
         public void Invoke()
         {
-            this.Task.Invocation!.Invoke(this.argValues);
+            this.Task.Invoker!.Invoke(this.argValues);
         }
     }
 }

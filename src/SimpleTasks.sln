@@ -10,7 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{FD4E06DB-9CF1-4E5C-AE09-7B0D9EDCAB76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Sandbox\Sandbox.csproj", "{FD4E06DB-9CF1-4E5C-AE09-7B0D9EDCAB76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTasks.UnitTests", "SimpleTasks.UnitTests\SimpleTasks.UnitTests.csproj", "{463EAF7C-2DE0-49AA-B4D7-50F7D13A9546}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,10 @@ Global
 		{FD4E06DB-9CF1-4E5C-AE09-7B0D9EDCAB76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD4E06DB-9CF1-4E5C-AE09-7B0D9EDCAB76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD4E06DB-9CF1-4E5C-AE09-7B0D9EDCAB76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{463EAF7C-2DE0-49AA-B4D7-50F7D13A9546}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{463EAF7C-2DE0-49AA-B4D7-50F7D13A9546}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{463EAF7C-2DE0-49AA-B4D7-50F7D13A9546}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{463EAF7C-2DE0-49AA-B4D7-50F7D13A9546}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

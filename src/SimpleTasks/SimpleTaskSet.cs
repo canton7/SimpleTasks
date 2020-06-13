@@ -19,18 +19,20 @@ namespace SimpleTasks
             return task;
         }
 
-        public void Invoke(string[] args)
+        public void Invoke(params string[] args)
         {
+            // Mapping of task name -> invocation for that task
             var taskInvocations = new Dictionary<string, TaskInvocation>();
             foreach (var task in this.tasks)
             {
-                if (task.Invocation == null)
-                    continue;
+                if (task.Invoker == null)
+                {
+                    throw new SimpleTaskHasNoInvocationException(task.Name);
+                }
 
                 if (taskInvocations.ContainsKey(task.Name))
                 {
-                    // TODO: Proper exceptions
-                    throw new Exception($"Two tasks with the name {task.Name} found");
+                    throw new SimpleTaskDuplicateTaskNameException(task.Name);
                 }
 
                 taskInvocations.Add(task.Name, new TaskInvocation(task));
@@ -42,7 +44,7 @@ namespace SimpleTasks
                 {
                     if (taskInvocations.TryGetValue(dependency, out var dependencyInvocation))
                     {
-                        dependencyInvocation.Prerequisites.Add(invocation);
+                        invocation.Prerequisites.Add(dependencyInvocation);
                     }
                     else
                     {
@@ -128,7 +130,7 @@ namespace SimpleTasks
 
             var result = new List<TaskInvocation>();
 
-            foreach(var taskToRun in tasksToRun)
+            foreach (var taskToRun in tasksToRun)
             {
                 Visit(taskToRun);
             }
@@ -177,15 +179,16 @@ namespace SimpleTasks
 
             if (argsWithNoMatches.Count > 0)
             {
-                // TODO: Proper exception, add "=="
-                throw new Exception($"Unknown option{(argsWithNoMatches.Count == 1 ? "" : "s")}: {string.Join(" ", argsWithNoMatches)}");
+                throw new SimpleTaskUnknownOptionsException(argsWithNoMatches.ToList());
             }
 
-            var missingArgs = taskInvocations.SelectMany(x => x.GetMissingArguments()).ToList();
+            var missingArgs = taskInvocations
+                .SelectMany(inv => inv.GetMissingArguments().Select(arg => (task: inv.Task, arg: arg)))
+                .GroupBy(x => FormatArg(x.arg), x => x.task)
+                .ToList();
             if (missingArgs.Count > 0)
             {
-                // TODO: Proper exception, add "--"
-                throw new Exception($"Missing option{(missingArgs.Count == 1 ? "" : "s")}: {string.Join(" ", missingArgs)}");
+                throw new SimpleTaskMissingOptionsException(missingArgs);
             }
 
             foreach (var taskInvocation in taskInvocations)
@@ -193,5 +196,7 @@ namespace SimpleTasks
                 taskInvocation.Invoke();
             }
         }
+
+        private static string FormatArg(string arg) => arg.Length == 1 ? $"-{arg}" : $"--{arg}";
     }
 }
