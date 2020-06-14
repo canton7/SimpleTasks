@@ -70,6 +70,22 @@ namespace SimpleTasks
         }
 
         /// <summary>
+        /// Create a new <see cref="SimpleTask"/> in <see cref="DefaultSet"/>
+        /// </summary>
+        /// <param name="name">Name of the task</param>
+        /// <param name="description">Description of the task, if any</param>
+        /// <returns>The created <see cref="SimpleTask"/>, for method chaining</returns>
+        public static SimpleTask Create(string name, string? description = null) =>
+            DefaultSet.Create(name, description);
+
+        /// <summary>
+        /// Invoke the tasks as specified by the command-line parameters <paramref name="args"/>
+        /// </summary>
+        /// <param name="args">Command-line parameters</param>
+        public static int Invoke(params string[] args) =>
+            DefaultSet.Invoke(args);
+
+        /// <summary>
         /// Specify the method which should be executed when this task is invoked
         /// </summary>
         /// <param name="action">Method which must be executed when this task is invoked</param>
@@ -103,19 +119,157 @@ namespace SimpleTasks
         }
 
         /// <summary>
-        /// Create a new <see cref="SimpleTask"/> in <see cref="DefaultSet"/>
+        /// Specify the method which should be executed when this task is invoked
         /// </summary>
-        /// <param name="name">Name of the task</param>
-        /// <param name="description">Description of the task, if any</param>
-        /// <returns>The created <see cref="SimpleTask"/>, for method chaining</returns>
-        public static SimpleTask Create(string name, string? description = null) =>
-            DefaultSet.Create(name, description);
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3>(Action<T1, T2, T3> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>();
+            return this;
+        }
 
         /// <summary>
-        /// Invoke the tasks as specified by the command-line parameters <paramref name="args"/>
+        /// Specify the method which should be executed when this task is invoked
         /// </summary>
-        /// <param name="args">Command-line parameters</param>
-        public static int Invoke(params string[] args) =>
-            DefaultSet.Invoke(args);
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4>(Action<T1, T2, T3, T4> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7, T8>(Action<T1, T2, T3, T4, T5, T6, T7, T8> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>().Arg<T8>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>().Arg<T8>().Arg<T9>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>().Arg<T8>().Arg<T9>().Arg<T10>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>().Arg<T8>().Arg<T9>().Arg<T10>().Arg<T11>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>().Arg<T8>().Arg<T9>().Arg<T10>().Arg<T11>().Arg<T12>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>().Arg<T8>().Arg<T9>().Arg<T10>().Arg<T11>().Arg<T12>().Arg<T13>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>().Arg<T8>().Arg<T9>().Arg<T10>().Arg<T11>().Arg<T12>().Arg<T13>().Arg<T14>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>().Arg<T8>().Arg<T9>().Arg<T10>().Arg<T11>().Arg<T12>().Arg<T13>().Arg<T14>().Arg<T15>();
+            return this;
+        }
+
+        /// <summary>
+        /// Specify the method which should be executed when this task is invoked
+        /// </summary>
+        /// <param name="action">Method which must be executed when this task is invoked</param>
+        /// <returns>The current <see cref="SimpleTask"/>, for method chaining</returns>
+        public SimpleTask Run<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> action)
+        {
+            this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>().Arg<T3>().Arg<T4>().Arg<T5>().Arg<T6>().Arg<T7>().Arg<T8>().Arg<T9>().Arg<T10>().Arg<T11>().Arg<T12>().Arg<T13>().Arg<T14>().Arg<T15>().Arg<T16>();
+            return this;
+        }
     }
 }
