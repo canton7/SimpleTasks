@@ -213,7 +213,7 @@ namespace SimpleTasks
 
             var result = new List<TaskInvocation>();
 
-            foreach (var taskToRun in tasksToRun)
+            foreach (var taskToRun in tasksToRun.Reverse())
             {
                 Visit(taskToRun);
             }
