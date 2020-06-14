@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using NUnit.Framework;
 
 namespace SimpleTasks.UnitTests
@@ -27,7 +28,23 @@ namespace SimpleTasks.UnitTests
         {
             this.taskSet.Create("Test");
             var e = Assert.Throws<SimpleTaskHasNoInvocationException>(() => this.taskSet.Invoke("Test"));
+            Assert.AreEqual("Test", e.Task.Name);
+        }
+
+        [Test]
+        public void ThrowsIfTaskNotFound()
+        {
+            var e = Assert.Throws< SimpleTaskNotFoundException>(() => this.taskSet.Invoke("Test"));
             Assert.AreEqual("Test", e.TaskName);
+        }
+
+        [Test]
+        public void ThrowsIfDependencyNotFound()
+        {
+            this.taskSet.Create("Test").DependsOn("NonExistent").Run(() => { });
+            var e = Assert.Throws<SimpleTaskDependencyNotFoundException>(() => this.taskSet.Invoke("Test"));
+            Assert.AreEqual("Test", e.Task.Name);
+            Assert.AreEqual("NonExistent", e.DependencyName);
         }
 
         [Test]
@@ -46,6 +63,24 @@ namespace SimpleTasks.UnitTests
             var e = Assert.Throws<SimpleTaskUnknownOptionsException>(() =>
                 this.taskSet.Invoke("Test", "--foo", "-a", "value", "--bar"));
             CollectionAssert.AreEqual(new[] { "--foo", "--bar" }, e.Options);
+        }
+
+        [Test]
+        public void ThrowsIfCircularDependency()
+        {
+            this.taskSet.Create("Task1").DependsOn("Task2").Run(() => { });
+            this.taskSet.Create("Task2").DependsOn("Task3").Run(() => { });
+            this.taskSet.Create("Task3").DependsOn("Task2").Run(() => { });
+
+            var e = Assert.Throws<SimpleTaskCircularDependencyException>(() => this.taskSet.Invoke("Task1"));
+            CollectionAssert.AreEqual(new[] { "Task1", "Task2", "Task3", "Task2" }, e.Tasks.Select(x => x.Name));
+        }
+
+        [Test]
+        public void ThrowsIfNoTaskNameGiven()
+        {
+            this.taskSet.Create("Test").Run((string s) => { });
+            Assert.Throws< SimpleTaskNoTaskNameSpecifiedException>(() => this.taskSet.Invoke("-s", "foo"));
         }
     }
 }

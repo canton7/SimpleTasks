@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Mono.Options;
@@ -27,7 +28,7 @@ namespace SimpleTasks
             {
                 if (task.Invoker == null)
                 {
-                    throw new SimpleTaskHasNoInvocationException(task.Name);
+                    throw new SimpleTaskHasNoInvocationException(task);
                 }
 
                 if (taskInvocations.ContainsKey(task.Name))
@@ -48,8 +49,7 @@ namespace SimpleTasks
                     }
                     else
                     {
-                        // TODO: Proper exception
-                        throw new Exception($"Dependency {dependency} of task {invocation.Task.Name} not found");
+                        throw new SimpleTaskDependencyNotFoundException(invocation.Task, dependency);
                     }
                 }
             }
@@ -95,8 +95,7 @@ namespace SimpleTasks
                 {
                     if (!taskInvocations.TryGetValue(extra[i], out var taskInvocation))
                     {
-                        // TODO: Proper exception
-                        throw new Exception($"No task {extra[i]}");
+                        throw new SimpleTaskNotFoundException(extra[i]);
                     }
                     tasksToRun.Add(taskInvocation);
                     extra.RemoveAt(i);
@@ -114,6 +113,11 @@ namespace SimpleTasks
                 {
                     tasksToRun.Add(taskInvocation);
                 }
+            }
+            
+            if (tasksToRun.Count == 0)
+            {
+                throw new SimpleTaskNoTaskNameSpecifiedException();
             }
 
             var tasksToRunWithDependencies = this.AddDependencies(tasksToRun);
@@ -143,7 +147,7 @@ namespace SimpleTasks
                 }
                 if (node.Mark == TaskInvocationMark.Temporary)
                 {
-                    throw new CircularDependencyException(new List<SimpleTask>() { node.Task });
+                    throw new SimpleTaskCircularDependencyException(new[] { node.Task });
                 }
 
                 node.Mark = TaskInvocationMark.Temporary;
@@ -154,9 +158,9 @@ namespace SimpleTasks
                     {
                         Visit(prerequisite);
                     }
-                    catch (CircularDependencyException e)
+                    catch (SimpleTaskCircularDependencyException e)
                     {
-                        throw new CircularDependencyException(e.Tasks.Append(node.Task).ToList());
+                        throw new SimpleTaskCircularDependencyException(e.Tasks.Prepend(node.Task).ToList());
                     }
                 }
 
@@ -173,8 +177,15 @@ namespace SimpleTasks
             var argsWithNoMatches = new HashSet<string>(args);
             foreach (var taskInvocation in taskInvocations)
             {
-                var extra = taskInvocation.Command.Options.Parse(args);
-                argsWithNoMatches.IntersectWith(extra);
+                try
+                {
+                    var extra = taskInvocation.Command.Options.Parse(args);
+                    argsWithNoMatches.IntersectWith(extra);
+                }
+                catch (OptionException e)
+                {
+                    throw new SimpleTaskOptionException(taskInvocation.Task, e);
+                }
             }
 
             if (argsWithNoMatches.Count > 0)

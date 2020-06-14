@@ -65,9 +65,15 @@ namespace SimpleTasks
                 name = attribute.Name ?? name;
                 description = attribute.Description;
             }
-            string prototype = this.parameterInfo.ParameterType == typeof(bool) ? name : name + "=";
 
-            command.Options.Add(prototype, description, new Action<T>(x => handler(x)));
+            if (this.parameterInfo.ParameterType == typeof(bool))
+            {
+                command.Options.Add(name, description, new Action<string>(x => handler(x != null)));
+            }
+            else
+            {
+                command.Options.Add(name + "=", description, new Action<T>(x => handler(x)));
+            }
         }
 
         private static bool IsNullable(ParameterInfo parameterInfo)

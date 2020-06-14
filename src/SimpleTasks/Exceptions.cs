@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Mono.Options;
 
 namespace SimpleTasks
 {
@@ -9,6 +10,41 @@ namespace SimpleTasks
     {
         public SimpleTaskException(string message) : base(message)
         {
+        }
+        public SimpleTaskException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
+    public class SimpleTaskNoTaskNameSpecifiedException : SimpleTaskException
+    {
+        public SimpleTaskNoTaskNameSpecifiedException()
+            : base("No task name to run specified (and no task called \"default\" was defined)")
+        {
+        }
+    }
+
+    public class SimpleTaskNotFoundException : SimpleTaskException
+    {
+        public string TaskName { get; }
+
+        public SimpleTaskNotFoundException(string taskName)
+            : base($"Unable to find task \"{taskName}\"")
+        {
+            this.TaskName = taskName;
+        }
+    }
+
+    public class SimpleTaskDependencyNotFoundException : SimpleTaskException
+    {
+        public SimpleTask Task { get; }
+        public string DependencyName { get; }
+
+        public SimpleTaskDependencyNotFoundException(SimpleTask task, string dependencyName)
+            : base($"Task \"{task.Name}\": unable to find dependency \"{dependencyName}\"")
+        {
+            this.Task = task;
+            this.DependencyName = dependencyName;
         }
     }
 
@@ -25,12 +61,12 @@ namespace SimpleTasks
 
     public class SimpleTaskHasNoInvocationException : SimpleTaskException
     {
-        public string TaskName { get; }
+        public SimpleTask Task { get; }
 
-        public SimpleTaskHasNoInvocationException(string taskName)
-            : base($"Task \"{taskName}\" missing a call to .Run(...)")
+        public SimpleTaskHasNoInvocationException(SimpleTask task)
+            : base($"Task \"{task.Name}\" missing a call to .Run(...)")
         {
-            this.TaskName = taskName;
+            this.Task = task;
         }
     }
 
@@ -61,14 +97,27 @@ namespace SimpleTasks
         }
     }
 
-    public class CircularDependencyException : SimpleTaskException
+    public class SimpleTaskCircularDependencyException : SimpleTaskException
     {
         public IReadOnlyList<SimpleTask> Tasks { get; }
 
-        internal CircularDependencyException(IReadOnlyList<SimpleTask> tasks)
+        internal SimpleTaskCircularDependencyException(IReadOnlyList<SimpleTask> tasks)
             : base($"Recursive dependency found: {string.Join(" -> ", tasks.Select(x => x.Name))}")
         {
             this.Tasks = tasks;
+        }
+    }
+
+    public class SimpleTaskOptionException : SimpleTaskException
+    {
+        public string OptionName => ((OptionException)this.InnerException).OptionName;
+
+        public SimpleTask Task { get; }
+
+        internal SimpleTaskOptionException(SimpleTask task, OptionException innerException)
+            : base($"Task: \"{task.Name}\": {innerException.Message}", innerException)
+        {
+            this.Task = task;
         }
     }
 }
