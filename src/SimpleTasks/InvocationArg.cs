@@ -22,7 +22,7 @@ namespace SimpleTasks
     {
         private readonly ParameterInfo parameterInfo;
         public int Index { get; }
-        public string Name => this.parameterInfo.Name;
+        public string Name { get; }
 
         public object? DefaultValue { get; }
         public bool IsOptional { get; }
@@ -32,26 +32,29 @@ namespace SimpleTasks
             this.parameterInfo = parameterInfo ?? throw new ArgumentNullException(nameof(parameterInfo));
             this.Index = argIndex;
 
+            if (this.parameterInfo.Name.EndsWith("Opt"))
+            {
+                this.Name = this.parameterInfo.Name.Substring(0, this.parameterInfo.Name.Length - "Opt".Length);
+                this.IsOptional = true;
+            }
+            else
+            {
+                this.Name = this.parameterInfo.Name;
+            }
+
             if (this.parameterInfo.HasDefaultValue)
             {
                 this.DefaultValue = this.parameterInfo.DefaultValue;
                 this.IsOptional = true;
             }
-            else if (Nullable.GetUnderlyingType(this.parameterInfo.ParameterType) != null ||
-                (!this.parameterInfo.ParameterType.IsValueType && IsNullable(this.parameterInfo)))
+            else if (Nullable.GetUnderlyingType(this.parameterInfo.ParameterType) != null)
             {
-                this.DefaultValue = null;
                 this.IsOptional = true;
             }
             else if (this.parameterInfo.ParameterType == typeof(bool))
             {
                 this.DefaultValue = false;
                 this.IsOptional = true;
-            }
-            else
-            {
-                this.DefaultValue = null;
-                this.IsOptional = false;
             }
         }
 
@@ -75,40 +78,5 @@ namespace SimpleTasks
                 command.Options.Add(name + "=", description, new Action<T>(x => handler(x)));
             }
         }
-
-        private static bool IsNullable(ParameterInfo parameterInfo)
-        {
-            var nullable = parameterInfo.CustomAttributes
-                .FirstOrDefault(x => x.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
-            if (nullable != null && nullable.ConstructorArguments.Count == 1)
-            {
-                var attributeArgument = nullable.ConstructorArguments[0];
-                if (attributeArgument.ArgumentType == typeof(byte[]))
-                {
-                    var args = (ReadOnlyCollection<CustomAttributeTypedArgument>)attributeArgument.Value;
-                    if (args.Count > 0 && args[0].ArgumentType == typeof(byte))
-                    {
-                        return (byte)args[0].Value == 2;
-                    }
-                }
-                else if (attributeArgument.ArgumentType == typeof(byte))
-                {
-                    return (byte)attributeArgument.Value == 2;
-                }
-            }
-
-            var context = parameterInfo.Member.CustomAttributes
-                .FirstOrDefault(x => x.AttributeType.FullName == "System.Runtime.CompilerServices.NullableContextAttribute");
-            if (context != null &&
-                context.ConstructorArguments.Count == 1 &&
-                context.ConstructorArguments[0].ArgumentType == typeof(byte))
-            {
-                return (byte)context.ConstructorArguments[0].Value == 2;
-            }
-
-            // Couldn't find a suitable attribute
-            return false;
-        }
     }
-
 }

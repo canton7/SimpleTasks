@@ -8,12 +8,14 @@ namespace SimpleTasks.UnitTests
     [TestFixture]
     public class OptionTests
     {
-        private SimpleTaskSet taskSet;
+        private SimpleTaskSet taskSet = null!;
 
         [SetUp]
         public void SetUp()
         {
             this.taskSet = new SimpleTaskSet();
+            this.runWithDefaultIntValue = null;
+            this.runWithDefaultStringValue = null;
         }
 
         [Test]
@@ -70,6 +72,73 @@ namespace SimpleTasks.UnitTests
             Assert.AreEqual("Test", e.Task.Name);
             Assert.AreEqual("-i", e.OptionName);
             StringAssert.Contains("Could not convert", e.Message);
+        }
+
+        [Test]
+        public void TreatsValueTypeAsRequired()
+        {
+            this.taskSet.Create("Test").Run((int i) => { });
+            Assert.Throws<SimpleTaskMissingOptionsException>(() => this.taskSet.Invoke("Test"));
+        }
+
+        [Test]
+        public void TreatsNullableValueTypeAsOptional()
+        {
+            int? value = null;
+            this.taskSet.Create("Test").Run((int? i) => value = i);
+            this.taskSet.Invoke("Test");
+            Assert.Null(value);
+        }
+
+        private int? runWithDefaultIntValue;
+        private void RunWithDefaultInt(int i = 3) => this.runWithDefaultIntValue = i;
+
+        [Test]
+        public void TreatsValueTypeWithDefaultAsOptional()
+        {
+            this.taskSet.Create("Test").Run<int>(this.RunWithDefaultInt);
+            this.taskSet.Invoke("Test");
+            Assert.AreEqual(3, this.runWithDefaultIntValue);
+        }
+
+        [Test]
+        public void TreatsValueTypeNameEndingInOptAsOptional()
+        {
+            int? foo = null;
+            int? bar = null;
+            this.taskSet.Create("Test").Run((int fooOpt, int? barOpt) => (foo, bar) = (fooOpt, barOpt));
+            this.taskSet.Invoke("Test");
+            Assert.AreEqual(0, foo);
+            Assert.AreEqual(null, bar);
+        }
+
+        [Test]
+        public void TreatsReferenceTypeAsRequired()
+        {
+            this.taskSet.Create("Test").Run((string s) => { });
+            Assert.Throws<SimpleTaskMissingOptionsException>(() => this.taskSet.Invoke("Test"));
+        }
+
+        private string? runWithDefaultStringValue;
+        private void RunWithDefaultString(string s = "foo") => this.runWithDefaultStringValue = s;
+
+        [Test]
+        public void TreatsReferenceTypeWithDefaultAsOptional()
+        {
+            this.taskSet.Create("Test").Run<string>(this.RunWithDefaultString);
+            this.taskSet.Invoke("Test");
+            Assert.AreEqual("foo", this.runWithDefaultStringValue);
+        }
+
+        [Test]
+        public void TreatsReferenceTypeNameEndingInOptAsOptional()
+        {
+            string? foo = null;
+            string? bar = null;
+            this.taskSet.Create("Test").Run((string fooOpt, string? barOpt) => (foo, bar) = (fooOpt, barOpt));
+            this.taskSet.Invoke("Test");
+            Assert.AreEqual(null, foo);
+            Assert.AreEqual(null, bar);
         }
     }
 }

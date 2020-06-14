@@ -6,7 +6,7 @@ namespace SimpleTasks.UnitTests
 {
     public class ExceptionTests
     {
-        private SimpleTaskSet taskSet;
+        private SimpleTaskSet taskSet = null!;
 
         [SetUp]
         public void SetUp()
