@@ -75,6 +75,15 @@ namespace SimpleTasks
             if (tasksToRun.Count == 0)
             {
                 ShowHelpIfRequired(localArgs, taskInvocations);
+
+                if (taskInvocations.TryGetValue(DefaultTaskName, out var taskInvocation))
+                {
+                    tasksToRun.Add(taskInvocation);
+                }
+            }
+
+            if (tasksToRun.Count == 0)
+            {
                 throw new SimpleTaskNoTaskNameSpecifiedException();
             }
 
@@ -100,14 +109,6 @@ namespace SimpleTasks
                 else
                 {
                     break;
-                }
-            }
-
-            if (tasksToRun.Count == 0)
-            {
-                if (taskInvocations.TryGetValue(DefaultTaskName, out var taskInvocation))
-                {
-                    tasksToRun.Add(taskInvocation);
                 }
             }
 
