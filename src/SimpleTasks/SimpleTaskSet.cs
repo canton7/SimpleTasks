@@ -13,6 +13,12 @@ namespace SimpleTasks
     public class SimpleTaskSet
     {
         /// <summary>
+        /// Gets the default <see cref="SimpleTaskSet"/>, used by the static methods <see cref="SimpleTask.CreateTask(string, string?)"/>
+        /// and <see cref="SimpleTask.InvokeTask(string[])"/>
+        /// </summary>
+        public static SimpleTaskSet Default { get; } = new SimpleTaskSet();
+
+        /// <summary>
         /// Gets the name of the default task
         /// </summary>
         /// <remarks>

@@ -10,12 +10,6 @@ namespace SimpleTasks
     public class SimpleTask
     {
         /// <summary>
-        /// Gets the default <see cref="SimpleTaskSet"/>, used by the static methods <see cref="Create(string, string?)"/>
-        /// and <see cref="Invoke(string[])"/> on this type
-        /// </summary>
-        public static SimpleTaskSet DefaultSet { get; } = new SimpleTaskSet();
-
-        /// <summary>
         /// Gets the name of this task
         /// </summary>
         public string Name { get; }
@@ -70,20 +64,21 @@ namespace SimpleTasks
         }
 
         /// <summary>
-        /// Create a new <see cref="SimpleTask"/> in <see cref="DefaultSet"/>
+        /// Create a new <see cref="SimpleTask"/> in <see cref="SimpleTaskSet.Default"/>
         /// </summary>
         /// <param name="name">Name of the task</param>
         /// <param name="description">Description of the task, if any</param>
         /// <returns>The created <see cref="SimpleTask"/>, for method chaining</returns>
-        public static SimpleTask Create(string name, string? description = null) =>
-            DefaultSet.Create(name, description);
+        public static SimpleTask CreateTask(string name, string? description = null) =>
+            SimpleTaskSet.Default.Create(name, description);
 
         /// <summary>
-        /// Invoke the tasks as specified by the command-line parameters <paramref name="args"/>
+        /// Invoke the tasks as specified by the command-line parameters <paramref name="args"/> in
+        /// <see cref="SimpleTaskSet.Default"/>
         /// </summary>
         /// <param name="args">Command-line parameters</param>
-        public static int Invoke(params string[] args) =>
-            DefaultSet.Invoke(args);
+        public static int InvokeTask(params string[] args) =>
+            SimpleTaskSet.Default.Invoke(args);
 
         /// <summary>
         /// Specify the method which should be executed when this task is invoked
