@@ -5,6 +5,17 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  
+    <Version>0.0.0</Version>
+    <PackageId>SimpleTasks</PackageId>
+    <PackageTags>Task;TaskRunner</PackageTags>
+    <Copyright>Copyright © Antony Male 2020</Copyright>
+    <!--<PackageIcon>icon.png</PackageIcon>-->
+    <PackageProjectUrl>http://github.com/canton7/SimpleTasks</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/canton7/SimpleTasks</RepositoryUrl>
+    <Authors>Antony Male</Authors>
+    <Description>Simple task runner, suitable for use in build scripts</Description>
   </PropertyGroup>
-
 </Project>
