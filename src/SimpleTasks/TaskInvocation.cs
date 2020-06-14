@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Mono.Options;
@@ -40,8 +41,12 @@ namespace SimpleTasks
             var command = new Command(task.Name, task.Description)
             {
                 Options = new OptionSet()
+                {
+                    $"{task.Name,-28} {task.Description}",
+                }
             };
-            command.Options.Add("help|h", "Show help", _ => command.Options.WriteOptionDescriptions(Console.Out), hidden: true);
+
+            command.Options.Add("help|h", "Show help", _ => this.ShowHelp(), hidden: true);
             foreach (var taskArg in task.Invoker.Args)
             {
                 taskArg.AddOption(command, x =>
@@ -52,6 +57,13 @@ namespace SimpleTasks
             }
 
             this.Command = command;
+        }
+
+        private void ShowHelp()
+        {
+            var writer = new StringWriter();
+            this.Command.Options.WriteOptionDescriptions(writer);
+            throw new SimpleTaskHelpRequiredException(writer.ToString());
         }
 
         public IEnumerable<string> GetMissingArguments()

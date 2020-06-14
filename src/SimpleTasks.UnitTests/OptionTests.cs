@@ -23,7 +23,7 @@ namespace SimpleTasks.UnitTests
         {
             bool? value = null;
             this.taskSet.Create("Test").Run((bool b) => value = b);
-            this.taskSet.Invoke("Test", "-b");
+            this.taskSet.InvokeAdvanced("Test", "-b");
             Assert.True(value);
         }
 
@@ -32,7 +32,7 @@ namespace SimpleTasks.UnitTests
         {
             bool? value = null;
             this.taskSet.Create("Test").Run((bool b) => value = b);
-            this.taskSet.Invoke("Test", "-b+");
+            this.taskSet.InvokeAdvanced("Test", "-b+");
             Assert.True(value);
         }
 
@@ -41,7 +41,7 @@ namespace SimpleTasks.UnitTests
         {
             bool? value = null;
             this.taskSet.Create("Test").Run((bool b) => value = b);
-            this.taskSet.Invoke("Test");
+            this.taskSet.InvokeAdvanced("Test");
             Assert.False(value);
         }
 
@@ -50,7 +50,7 @@ namespace SimpleTasks.UnitTests
         {
             bool? value = null;
             this.taskSet.Create("Test").Run((bool b) => value = b);
-            this.taskSet.Invoke("Test", "-b-");
+            this.taskSet.InvokeAdvanced("Test", "-b-");
             Assert.False(value);
         }
 
@@ -58,7 +58,7 @@ namespace SimpleTasks.UnitTests
         public void ThrowsIfOptionMissingValue()
         {
             this.taskSet.Create("Test").Run((string s) => { });
-            var e = Assert.Throws<SimpleTaskOptionException>(() => this.taskSet.Invoke("Test", "-s"));
+            var e = Assert.Throws<SimpleTaskOptionException>(() => this.taskSet.InvokeAdvanced("Test", "-s"));
             Assert.AreEqual("Test", e.Task.Name);
             Assert.AreEqual("-s", e.OptionName);
             StringAssert.Contains("Missing required value", e.Message);
@@ -68,7 +68,7 @@ namespace SimpleTasks.UnitTests
         public void ThrowsIfOptionCouldNotBeParsed()
         {
             this.taskSet.Create("Test").Run((int i) => { });
-            var e = Assert.Throws<SimpleTaskOptionException>(() => this.taskSet.Invoke("Test", "-i", "foo"));
+            var e = Assert.Throws<SimpleTaskOptionException>(() => this.taskSet.InvokeAdvanced("Test", "-i", "foo"));
             Assert.AreEqual("Test", e.Task.Name);
             Assert.AreEqual("-i", e.OptionName);
             StringAssert.Contains("Could not convert", e.Message);
@@ -78,7 +78,7 @@ namespace SimpleTasks.UnitTests
         public void TreatsValueTypeAsRequired()
         {
             this.taskSet.Create("Test").Run((int i) => { });
-            Assert.Throws<SimpleTaskMissingOptionsException>(() => this.taskSet.Invoke("Test"));
+            Assert.Throws<SimpleTaskMissingOptionsException>(() => this.taskSet.InvokeAdvanced("Test"));
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace SimpleTasks.UnitTests
         {
             int? value = null;
             this.taskSet.Create("Test").Run((int? i) => value = i);
-            this.taskSet.Invoke("Test");
+            this.taskSet.InvokeAdvanced("Test");
             Assert.Null(value);
         }
 
@@ -97,7 +97,7 @@ namespace SimpleTasks.UnitTests
         public void TreatsValueTypeWithDefaultAsOptional()
         {
             this.taskSet.Create("Test").Run<int>(this.RunWithDefaultInt);
-            this.taskSet.Invoke("Test");
+            this.taskSet.InvokeAdvanced("Test");
             Assert.AreEqual(3, this.runWithDefaultIntValue);
         }
 
@@ -107,7 +107,7 @@ namespace SimpleTasks.UnitTests
             int? foo = null;
             int? bar = null;
             this.taskSet.Create("Test").Run((int fooOpt, int? barOpt) => (foo, bar) = (fooOpt, barOpt));
-            this.taskSet.Invoke("Test");
+            this.taskSet.InvokeAdvanced("Test");
             Assert.AreEqual(0, foo);
             Assert.AreEqual(null, bar);
         }
@@ -116,7 +116,7 @@ namespace SimpleTasks.UnitTests
         public void TreatsReferenceTypeAsRequired()
         {
             this.taskSet.Create("Test").Run((string s) => { });
-            Assert.Throws<SimpleTaskMissingOptionsException>(() => this.taskSet.Invoke("Test"));
+            Assert.Throws<SimpleTaskMissingOptionsException>(() => this.taskSet.InvokeAdvanced("Test"));
         }
 
         private string? runWithDefaultStringValue;
@@ -126,7 +126,7 @@ namespace SimpleTasks.UnitTests
         public void TreatsReferenceTypeWithDefaultAsOptional()
         {
             this.taskSet.Create("Test").Run<string>(this.RunWithDefaultString);
-            this.taskSet.Invoke("Test");
+            this.taskSet.InvokeAdvanced("Test");
             Assert.AreEqual("foo", this.runWithDefaultStringValue);
         }
 
@@ -136,7 +136,7 @@ namespace SimpleTasks.UnitTests
             string? foo = null;
             string? bar = null;
             this.taskSet.Create("Test").Run((string fooOpt, string? barOpt) => (foo, bar) = (fooOpt, barOpt));
-            this.taskSet.Invoke("Test");
+            this.taskSet.InvokeAdvanced("Test");
             Assert.AreEqual(null, foo);
             Assert.AreEqual(null, bar);
         }

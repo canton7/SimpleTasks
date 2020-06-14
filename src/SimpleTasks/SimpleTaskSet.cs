@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using Mono.Options;
 
 namespace SimpleTasks
 {
     public class SimpleTaskSet
     {
+        private const string DefaultTaskName = "default";
         private readonly List<SimpleTask> tasks = new List<SimpleTask>();
         
         public SimpleTask Create(string name, string? description = null)
@@ -20,7 +19,121 @@ namespace SimpleTasks
             return task;
         }
 
-        public void Invoke(params string[] args)
+        public int Invoke(params string[] args)
+        {
+            try
+            {
+                this.InvokeAdvanced(args);
+                return 0;
+            }
+            catch (SimpleTaskHelpRequiredException e)
+            {
+                Console.Error.Write(e.HelpMessage);
+                return 0;
+            }
+            catch (SimpleTaskException e)
+            {
+                Console.Error.WriteLine(e.Message);
+                return -1;  
+            }
+        }
+
+        public void InvokeAdvanced(params string[] args)
+        {
+            var localArgs = args.ToList();
+
+            var taskInvocations = this.CreateTaskInvocations();
+            var tasksToRun = GetTasksToRun(localArgs, taskInvocations);
+
+            if (tasksToRun.Count == 0)
+            {
+                ShowHelpIfRequired(localArgs, taskInvocations);
+                throw new SimpleTaskNoTaskNameSpecifiedException();
+            }
+
+            var tasksToRunWithDependencies = AddDependencies(tasksToRun);
+            RunTasks(localArgs, tasksToRunWithDependencies);
+        }
+
+        private static List<TaskInvocation> GetTasksToRun(List<string> args, Dictionary<string, TaskInvocation> taskInvocations)
+        {
+            var tasksToRun = new List<TaskInvocation>();
+            for (int i = 0; i < args.Count; i++)
+            {
+                if (!args[i].StartsWith("-"))
+                {
+                    if (!taskInvocations.TryGetValue(args[i], out var taskInvocation))
+                    {
+                        throw new SimpleTaskNotFoundException(args[i]);
+                    }
+                    tasksToRun.Add(taskInvocation);
+                    args.RemoveAt(i);
+                    i--;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (tasksToRun.Count == 0)
+            {
+                if (taskInvocations.TryGetValue(DefaultTaskName, out var taskInvocation))
+                {
+                    tasksToRun.Add(taskInvocation);
+                }
+            }
+
+            return tasksToRun;
+        }
+
+        private static void ShowHelpIfRequired(List<string> args, Dictionary<string, TaskInvocation> taskInvocations)
+        {
+            bool showHelp = false;
+            bool listTasks = false;
+
+            var rootOptions = new OptionSet()
+            {
+                $"USAGE: {GetExeName()} [commands...] [options]",
+                "",
+                "Common options:",
+                { "h|help", "Show help", x => showHelp = x != null },
+                { "T|list-tasks", "List tasks", x => listTasks = x != null },
+            };
+
+            var extra = rootOptions.Parse(args);
+            args.Clear();
+            args.AddRange(extra);
+
+            if (showHelp || listTasks)
+            {
+                var writer = new StringWriter();
+                if (showHelp)
+                {
+                    rootOptions.WriteOptionDescriptions(writer);
+                    writer.WriteLine();
+                    writer.WriteLine("Commands:");
+                    writer.WriteLine();
+                }
+
+                foreach (var command in taskInvocations.Values.OrderBy(x => x.Task.Name).Select(x => x.Command))
+                {
+                    if (showHelp)
+                    {
+                        command.Options.WriteOptionDescriptions(writer);
+                        writer.WriteLine();
+                    }
+                    else
+                    {
+                        writer.WriteLine($"{command.Name,-28} {command.Help}");
+                    }
+                }
+
+                throw new SimpleTaskHelpRequiredException(writer.ToString());
+            }
+        }
+
+        private Dictionary<string, TaskInvocation> CreateTaskInvocations()
         {
             // Mapping of task name -> invocation for that task
             var taskInvocations = new Dictionary<string, TaskInvocation>();
@@ -54,78 +167,10 @@ namespace SimpleTasks
                 }
             }
 
-            bool showHelp = false;
-            bool listTasks = false;
-
-            var rootOptions = new OptionSet
-            {
-                { "Common options:" },
-                { "h|help", "Show help", x => showHelp = x != null },
-                { "L|list-tasks", "List tasks", x => listTasks = x != null },
-            };
-
-            var extra = rootOptions.Parse(args);
-
-            if (showHelp || listTasks)
-            {
-                if (showHelp)
-                {
-                    rootOptions.WriteOptionDescriptions(Console.Out);
-                    Console.WriteLine();
-                }
-
-                Console.WriteLine("Commands:");
-
-                foreach (var command in taskInvocations.Values.OrderBy(x => x.Task.Name).Select(x => x.Command))
-                {
-                    Console.WriteLine($"  {command.Name,-26} {command.Help}");
-                    if (showHelp)
-                    {
-                        command.Options.WriteOptionDescriptions(Console.Out);
-                        Console.WriteLine();
-                    }
-                }
-                return;
-            }
-
-            var tasksToRun = new List<TaskInvocation>();
-            for (int i = 0; i < extra.Count; i++)
-            {
-                if (!extra[i].StartsWith("-"))
-                {
-                    if (!taskInvocations.TryGetValue(extra[i], out var taskInvocation))
-                    {
-                        throw new SimpleTaskNotFoundException(extra[i]);
-                    }
-                    tasksToRun.Add(taskInvocation);
-                    extra.RemoveAt(i);
-                    i--;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (tasksToRun.Count == 0)
-            {
-                if (taskInvocations.TryGetValue("default", out var taskInvocation))
-                {
-                    tasksToRun.Add(taskInvocation);
-                }
-            }
-            
-            if (tasksToRun.Count == 0)
-            {
-                throw new SimpleTaskNoTaskNameSpecifiedException();
-            }
-
-            var tasksToRunWithDependencies = this.AddDependencies(tasksToRun);
-
-            this.RunTasks(extra, tasksToRunWithDependencies);
+            return taskInvocations;
         }
 
-        private List<TaskInvocation> AddDependencies(IEnumerable<TaskInvocation> tasksToRun)
+        private static List<TaskInvocation> AddDependencies(IEnumerable<TaskInvocation> tasksToRun)
         {
             // We choose a depth-first search (https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search) as it doesn't
             // need to start with a set of all nodes with no incoming edge, and it nicely detects circular references.
@@ -172,7 +217,7 @@ namespace SimpleTasks
             return result;
         }
 
-        private void RunTasks(List<string> args, List<TaskInvocation> taskInvocations)
+        private static void RunTasks(List<string> args, List<TaskInvocation> taskInvocations)
         {
             var argsWithNoMatches = new HashSet<string>(args);
             foreach (var taskInvocation in taskInvocations)
@@ -206,6 +251,12 @@ namespace SimpleTasks
             {
                 taskInvocation.Invoke();
             }
+        }
+
+        private static string GetExeName()
+        {
+            var assembly = Assembly.GetEntryAssembly();
+            return assembly == null ? "" : Path.GetFileNameWithoutExtension(assembly.Location);
         }
 
         private static string FormatArg(string arg) => arg.Length == 1 ? $"-{arg}" : $"--{arg}";

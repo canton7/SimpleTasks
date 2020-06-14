@@ -120,4 +120,15 @@ namespace SimpleTasks
             this.Task = task;
         }
     }
+
+    public class SimpleTaskHelpRequiredException : SimpleTaskException
+    {
+        public string HelpMessage { get; }
+
+        public SimpleTaskHelpRequiredException(string helpMessage)
+            : base("User requested help")
+        {
+            this.HelpMessage = helpMessage;
+        }
+    }
 }

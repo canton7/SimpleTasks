@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Mono.Options;
 
 namespace SimpleTasks
 {
@@ -56,5 +55,10 @@ namespace SimpleTasks
             this.Invoker = new RunMethodInvoker(action).Arg<T1>().Arg<T2>();
             return this;
         }
+
+        public static SimpleTask Create(string name, string? description = null) =>
+            DefaultSet.Create(name, description);
+        public static void Invoke(params string[] args) =>
+            DefaultSet.InvokeAdvanced(args);
     }
 }
