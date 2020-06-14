@@ -10,7 +10,7 @@
     <PackageId>SimpleTasks</PackageId>
     <PackageTags>Task;TaskRunner</PackageTags>
     <Copyright>Copyright © Antony Male 2020</Copyright>
-    <!--<PackageIcon>icon.png</PackageIcon>-->
+    <PackageIcon>icon.png</PackageIcon>
     <PackageProjectUrl>http://github.com/canton7/SimpleTasks</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
@@ -27,5 +27,9 @@
 
   <ItemGroup Condition=" '$(ContinuousIntegrationBuild)' == 'true' ">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.0-beta-20204-02" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
