@@ -47,7 +47,14 @@ namespace SimpleTasks
         /// </summary>
         /// <param name="args">Command-line parameters</param>
         /// <returns>Exit status, for returning from Main</returns>
-        public int Invoke(params string[] args)
+        public int Invoke(params string[] args) => this.Invoke(args.AsEnumerable());
+
+        /// <summary>
+        /// Invoke the tasks as specified by the command-line parameters <paramref name="args"/>
+        /// </summary>
+        /// <param name="args">Command-line parameters</param>
+        /// <returns>Exit status, for returning from Main</returns>
+        public int Invoke(IEnumerable<string> args)
         {
             try
             {
@@ -71,8 +78,18 @@ namespace SimpleTasks
         /// instead <see cref="SimpleTaskException"/> subclasses are thrown.
         /// </summary>
         /// <param name="args">Command-line parameters</param>
-        public void InvokeAdvanced(params string[] args)
+        public void InvokeAdvanced(params string[] args) => this.InvokeAdvanced(args.AsEnumerable());
+
+        /// <summary>
+        /// Similar to <see cref="Invoke(IEnumerable{string})"/>, but nothing is written to <see cref="Console"/>, and
+        /// instead <see cref="SimpleTaskException"/> subclasses are thrown.
+        /// </summary>
+        /// <param name="args">Command-line parameters</param>
+        public void InvokeAdvanced(IEnumerable<string> args)
         {
+            if (args is null)
+                throw new ArgumentNullException(nameof(args));
+
             var localArgs = args.ToList();
 
             var taskInvocations = this.CreateTaskInvocations();
