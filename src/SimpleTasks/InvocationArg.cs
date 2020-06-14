@@ -62,11 +62,17 @@ namespace SimpleTasks
         {
             var attribute = this.parameterInfo.GetCustomAttribute<OptionAttribute>();
             string name = this.Name;
-            string? description = null;
+            string description = string.Empty;
             if (attribute != null)
             {
                 name = attribute.Name ?? name;
-                description = attribute.Description;
+                description = attribute.Description ?? string.Empty;
+            }
+
+
+            if (this.IsOptional)
+            {
+                description = "(optional) " + description;
             }
 
             if (this.parameterInfo.ParameterType == typeof(bool))

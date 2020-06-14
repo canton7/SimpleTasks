@@ -7,11 +7,28 @@ using Mono.Options;
 
 namespace SimpleTasks
 {
+    /// <summary>
+    /// A task set, in which tasks can be defined, and on which tasks can be executed
+    /// </summary>
     public class SimpleTaskSet
     {
-        private const string DefaultTaskName = "default";
+        /// <summary>
+        /// Gets the name of the default task
+        /// </summary>
+        /// <remarks>
+        /// If a task of this name is defined, and the user doesn't specify the names of any tasks to run,
+        /// then this task is run.
+        /// </remarks>
+        public const string DefaultTaskName = "default";
+
         private readonly List<SimpleTask> tasks = new List<SimpleTask>();
-        
+
+        /// <summary>
+        /// Create a new <see cref="SimpleTask"/>
+        /// </summary>
+        /// <param name="name">Name of the task</param>
+        /// <param name="description">Description of the task, if any</param>
+        /// <returns>The created <see cref="SimpleTask"/>, for method chaining</returns>
         public SimpleTask Create(string name, string? description = null)
         {
             var task = new SimpleTask(name, description);
@@ -19,6 +36,11 @@ namespace SimpleTasks
             return task;
         }
 
+        /// <summary>
+        /// Invoke the tasks as specified by the command-line parameters <paramref name="args"/>
+        /// </summary>
+        /// <param name="args">Command-line parameters</param>
+        /// <returns>Exit status, for returning from Main</returns>
         public int Invoke(params string[] args)
         {
             try
@@ -38,6 +60,11 @@ namespace SimpleTasks
             }
         }
 
+        /// <summary>
+        /// Similar to <see cref="Invoke(string[])"/>, but nothing is written to <see cref="Console"/>, and
+        /// instead <see cref="SimpleTaskException"/> subclasses are thrown.
+        /// </summary>
+        /// <param name="args">Command-line parameters</param>
         public void InvokeAdvanced(params string[] args)
         {
             var localArgs = args.ToList();

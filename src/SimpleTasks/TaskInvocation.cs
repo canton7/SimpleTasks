@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Mono.Options;
 
 namespace SimpleTasks
 {
-    public enum TaskInvocationMark
+    internal enum TaskInvocationMark
     {
         None,
         Temporary,
