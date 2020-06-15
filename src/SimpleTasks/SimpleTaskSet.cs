@@ -225,12 +225,15 @@ namespace SimpleTasks
         {
             // We choose a depth-first search (https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search) as it doesn't
             // need to start with a set of all nodes with no incoming edge, and it nicely detects circular references.
+            // Tweaked slightly because each task has a list of things which must come before it, rather than things which must
+            // come after it. In practice this just means we don't reverse the list at the end.
             // If we hit a circular dependency, the chain leading up to the dependency is sitting on the stack, so we can
-            // just unwind it using exceptions -- it's a bit ugly, but we're not going to hit it often.
+            // just unwind it using exceptions -- it's a bit ugly, but we're not going to hit it often. This avoids having to keep
+            // an immutable stack around during non-exceptional runs.
 
             var result = new List<TaskInvocation>();
 
-            foreach (var taskToRun in tasksToRun.Reverse())
+            foreach (var taskToRun in tasksToRun)
             {
                 Visit(taskToRun);
             }
@@ -264,11 +267,10 @@ namespace SimpleTasks
                 result.Add(node);
             }
 
-            result.Reverse();
             return result;
         }
 
-        private static void RunTasks(List<string> args, List<TaskInvocation> taskInvocations)
+        private static void RunTasks(List<string> args, IEnumerable<TaskInvocation> taskInvocations)
         {
             var argsWithNoMatches = new HashSet<string>(args);
             foreach (var taskInvocation in taskInvocations)
