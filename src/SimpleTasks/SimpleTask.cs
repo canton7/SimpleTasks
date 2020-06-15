@@ -81,6 +81,14 @@ namespace SimpleTasks
             SimpleTaskSet.Default.Invoke(args);
 
         /// <summary>
+        /// Invoke the tasks as specified by the command-line parameters <paramref name="args"/> in
+        /// <see cref="SimpleTaskSet.Default"/>
+        /// </summary>
+        /// <param name="args">Command-line parameters</param>
+        public static int InvokeTask(IEnumerable<string> args) =>
+            SimpleTaskSet.Default.Invoke(args);
+
+        /// <summary>
         /// Specify the method which should be executed when this task is invoked
         /// </summary>
         /// <param name="action">Method which must be executed when this task is invoked</param>

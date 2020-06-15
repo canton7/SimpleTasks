@@ -47,7 +47,14 @@ namespace SimpleTasks
         /// </summary>
         /// <param name="args">Command-line parameters</param>
         /// <returns>Exit status, for returning from Main</returns>
-        public int Invoke(params string[] args)
+        public int Invoke(params string[] args) => this.Invoke(args.AsEnumerable());
+
+        /// <summary>
+        /// Invoke the tasks as specified by the command-line parameters <paramref name="args"/>
+        /// </summary>
+        /// <param name="args">Command-line parameters</param>
+        /// <returns>Exit status, for returning from Main</returns>
+        public int Invoke(IEnumerable<string> args)
         {
             try
             {
@@ -71,8 +78,18 @@ namespace SimpleTasks
         /// instead <see cref="SimpleTaskException"/> subclasses are thrown.
         /// </summary>
         /// <param name="args">Command-line parameters</param>
-        public void InvokeAdvanced(params string[] args)
+        public void InvokeAdvanced(params string[] args) => this.InvokeAdvanced(args.AsEnumerable());
+
+        /// <summary>
+        /// Similar to <see cref="Invoke(IEnumerable{string})"/>, but nothing is written to <see cref="Console"/>, and
+        /// instead <see cref="SimpleTaskException"/> subclasses are thrown.
+        /// </summary>
+        /// <param name="args">Command-line parameters</param>
+        public void InvokeAdvanced(IEnumerable<string> args)
         {
+            if (args is null)
+                throw new ArgumentNullException(nameof(args));
+
             var localArgs = args.ToList();
 
             var taskInvocations = this.CreateTaskInvocations();
@@ -208,8 +225,11 @@ namespace SimpleTasks
         {
             // We choose a depth-first search (https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search) as it doesn't
             // need to start with a set of all nodes with no incoming edge, and it nicely detects circular references.
+            // Tweaked slightly because each task has a list of things which must come before it, rather than things which must
+            // come after it. In practice this just means we don't reverse the list at the end.
             // If we hit a circular dependency, the chain leading up to the dependency is sitting on the stack, so we can
-            // just unwind it using exceptions -- it's a bit ugly, but we're not going to hit it often.
+            // just unwind it using exceptions -- it's a bit ugly, but we're not going to hit it often. This avoids having to keep
+            // an immutable stack around during non-exceptional runs.
 
             var result = new List<TaskInvocation>();
 
@@ -247,11 +267,10 @@ namespace SimpleTasks
                 result.Add(node);
             }
 
-            result.Reverse();
             return result;
         }
 
-        private static void RunTasks(List<string> args, List<TaskInvocation> taskInvocations)
+        private static void RunTasks(List<string> args, IEnumerable<TaskInvocation> taskInvocations)
         {
             var argsWithNoMatches = new HashSet<string>(args);
             foreach (var taskInvocation in taskInvocations)
