@@ -232,4 +232,49 @@ namespace SimpleTasks
             this.HelpMessage = helpMessage;
         }
     }
+
+    /// <summary>
+    /// Exception thrown when a <see cref="Command"/> returns a non-zero exit code and <see cref="Command.ThrowOnError"/>
+    /// is <c>true</c>
+    /// </summary>
+    public class SimpleTaskCommandFailedException : SimpleTaskException
+    {
+        /// <summary>
+        /// Gets the exit code of the process
+        /// </summary>
+        public int ExitCode { get; }
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="SimpleTaskCommandFailedException"/> class
+        /// </summary>
+        /// <param name="exitCode">Exit code of the command</param>
+        /// <param name="message">Exception message</param>
+        public SimpleTaskCommandFailedException(int exitCode, string message)
+            : base(message)
+        {
+            this.ExitCode = exitCode;
+        }
+    }
+
+    /// <summary>
+    /// Exception thrown when a <see cref="Command"/> times out
+    /// </summary>
+    public class SimpleTaskCommandTimedOutException : SimpleTaskException
+    {
+        /// <summary>
+        /// Gets the configured timeout
+        /// </summary>
+        public TimeSpan Timeout { get; }
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="SimpleTaskCommandTimedOutException"/> class
+        /// </summary>
+        /// <param name="timeout">Configured timeout</param>
+        /// <param name="message">Exception message</param>
+        public SimpleTaskCommandTimedOutException(TimeSpan timeout, string message)
+            : base(message)
+        {
+            this.Timeout = timeout;
+        }
+    }
 }
