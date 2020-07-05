@@ -103,10 +103,10 @@ namespace SimpleTasks
         /// <see cref="Timeout"/> is not <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> and the process takes
         /// longer than this to execute
         /// </exception>
-        public static void Execute(string command, string? args = null)
+        public static void Run(string command, string? args = null)
         {
             // ThrowOnError defaults to true
-            new Command(command, args).Execute();
+            new Command(command, args).Run();
         }
 
         /// <summary>
@@ -121,10 +121,10 @@ namespace SimpleTasks
         /// <see cref="Timeout"/> is not <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> and the process takes
         /// longer than this to execute
         /// </exception>
-        public int Execute(out string output)
+        public int Run(out string output)
         {
             var outputBuilder = new StringBuilder();
-            int result = this.Execute(outputBuilder, null, null);
+            int result = this.Run(outputBuilder, null, null);
             output = outputBuilder.ToString();
             return result;
         }
@@ -142,10 +142,10 @@ namespace SimpleTasks
         /// <see cref="Timeout"/> is not <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> and the process takes
         /// longer than this to execute
         /// </exception>
-        public int Execute(out string stdout, out string stderr)
+        public int Run(out string stdout, out string stderr)
         {
             var (stdoutBuilder, stderrBuilder) = (new StringBuilder(), new StringBuilder());
-            int result = this.Execute(null, stdoutBuilder, stderrBuilder);
+            int result = this.Run(null, stdoutBuilder, stderrBuilder);
             (stdout, stderr) = (stdoutBuilder.ToString(), stderrBuilder.ToString());
             return result;
         }
@@ -161,9 +161,9 @@ namespace SimpleTasks
         /// <see cref="Timeout"/> is not <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> and the process takes
         /// longer than this to execute
         /// </exception>
-        public int Execute() => this.Execute(null, null, null);
+        public int Run() => this.Run(null, null, null);
 
-        private int Execute(StringBuilder? outputBuilder, StringBuilder? stdoutBuilder, StringBuilder? stderrBuilder)
+        private int Run(StringBuilder? outputBuilder, StringBuilder? stdoutBuilder, StringBuilder? stderrBuilder)
         { 
             using var process = new Process
             {
