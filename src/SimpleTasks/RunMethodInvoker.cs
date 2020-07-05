@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text;
 
 namespace SimpleTasks
@@ -25,7 +27,14 @@ namespace SimpleTasks
 
         public void Invoke(object?[] argValues)
         {
-            this.@delegate.DynamicInvoke(argValues);
+            try
+            {
+                this.@delegate.DynamicInvoke(argValues);
+            }
+            catch (TargetInvocationException e)
+            {
+                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+            }
         }
     }
 }
