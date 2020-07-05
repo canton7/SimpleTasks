@@ -15,7 +15,7 @@ namespace SimpleTasks
         string Name { get; }
         object? DefaultValue { get; }
         bool IsOptional { get; }
-        void AddOption(Command command, Action<object?> handler);
+        void AddOption(Mono.Options.Command command, Action<object?> handler);
     }
 
     internal class InvocationArg<T> : IInvocationArg
@@ -58,7 +58,7 @@ namespace SimpleTasks
             }
         }
 
-        public void AddOption(Command command, Action<object?> handler)
+        public void AddOption(Mono.Options.Command command, Action<object?> handler)
         {
             var attribute = this.parameterInfo.GetCustomAttribute<OptionAttribute>();
             string name = this.Name;

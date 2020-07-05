@@ -15,7 +15,7 @@ namespace SimpleTasks
     internal class TaskInvocation
     {
         public SimpleTask Task { get; }
-        public Command Command { get; }
+        public Mono.Options.Command Command { get; }
         public TaskInvocationMark Mark { get; set; }
 
         public List<TaskInvocation> Prerequisites { get; } = new List<TaskInvocation>();
@@ -36,7 +36,7 @@ namespace SimpleTasks
                 this.argSupplied[i] = task.Invoker.Args[i].IsOptional;
             }
 
-            var command = new Command(task.Name, task.Description)
+            var command = new Mono.Options.Command(task.Name, task.Description)
             {
                 Options = new OptionSet()
                 {

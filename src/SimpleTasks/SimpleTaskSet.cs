@@ -66,6 +66,11 @@ namespace SimpleTasks
                 Console.Error.Write(e.HelpMessage);
                 return 0;
             }
+            catch (SimpleTaskCommandFailedException e)
+            {
+                Console.Error.WriteLine(e.Message);
+                return e.ExitCode;
+            }
             catch (SimpleTaskException e)
             {
                 Console.Error.WriteLine(e.Message);
