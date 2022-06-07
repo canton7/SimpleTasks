@@ -32,9 +32,15 @@ namespace SimpleTasks
             this.parameterInfo = parameterInfo ?? throw new ArgumentNullException(nameof(parameterInfo));
             this.Index = argIndex;
 
-            if (this.parameterInfo.Name.EndsWith("Opt"))
+            var nullabilityInfo = new NullabilityInfoContext().Create(this.parameterInfo);
+            if (nullabilityInfo.ReadState == NullabilityState.Nullable)
             {
-                this.Name = this.parameterInfo.Name.Substring(0, this.parameterInfo.Name.Length - "Opt".Length);
+                this.Name = this.parameterInfo.Name!;
+                this.IsOptional = true;
+            }
+            else if (this.parameterInfo.Name!.EndsWith("Opt"))
+            {
+                this.Name = this.parameterInfo.Name![..^"Opt".Length];
                 this.IsOptional = true;
             }
             else
