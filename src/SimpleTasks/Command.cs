@@ -72,6 +72,11 @@ namespace SimpleTasks
         /// </summary>
         public TimeSpan Timeout { get; set; } = System.Threading.Timeout.InfiniteTimeSpan;
 
+        /// <summary>
+        /// The Current Working Directory in which to start the process
+        /// </summary>
+        public string? WorkingDirectory { get; set; }
+
         // Console.XXX are synchronized, but the rest of our ways of outputting things are not
         private readonly object outputLockObject = new object();
 
@@ -171,6 +176,7 @@ namespace SimpleTasks
                 {
                     FileName = this.command,
                     Arguments = this.args,
+                    WorkingDirectory = this.WorkingDirectory,
                     UseShellExecute = false,
                 }
             };
