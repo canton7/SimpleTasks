@@ -78,7 +78,7 @@ namespace SimpleTasks
         public string? WorkingDirectory { get; set; }
 
         // Console.XXX are synchronized, but the rest of our ways of outputting things are not
-        private readonly object outputLockObject = new object();
+        private readonly object outputLockObject = new();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="Command"/> class, with the given command and args

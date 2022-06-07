@@ -33,7 +33,7 @@ namespace SimpleTasks
             }
             catch (TargetInvocationException e)
             {
-                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                ExceptionDispatchInfo.Capture(e.InnerException!).Throw();
             }
         }
     }

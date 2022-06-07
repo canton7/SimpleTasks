@@ -19,7 +19,7 @@ namespace SimpleTasks
         /// </summary>
         public string? Description { get; }
 
-        private readonly List<string> dependencies = new List<string>();
+        private readonly List<string> dependencies = new();
         /// <summary>
         /// Gets the dependency which must be run before this task is run
         /// </summary>

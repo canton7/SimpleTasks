@@ -27,7 +27,7 @@ namespace SimpleTasks
         /// </remarks>
         public const string DefaultTaskName = "default";
 
-        private readonly List<SimpleTask> tasks = new List<SimpleTask>();
+        private readonly List<SimpleTask> tasks = new();
 
         /// <summary>
         /// Create a new <see cref="SimpleTask"/>

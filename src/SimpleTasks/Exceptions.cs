@@ -198,7 +198,7 @@ namespace SimpleTasks
         /// <summary>
         /// Gets the name of the option which has a problem
         /// </summary>
-        public string? OptionName => ((OptionException)this.InnerException).OptionName;
+        public string? OptionName => ((OptionException)this.InnerException!).OptionName;
 
         /// <summary>
         /// Gets the task which has the option
